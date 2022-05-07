@@ -5,6 +5,12 @@ import { AppService } from './app.service';
 async function bootstrap() {
   const app = await NestFactory.createApplicationContext(AppModule);
   const appService = app.get(AppService);
-  console.log(appService.getHello());
+
+  try {
+    appService.main();
+  } catch (error) {
+    console.error(error);
+    await app.close();
+  }
 }
 bootstrap();
