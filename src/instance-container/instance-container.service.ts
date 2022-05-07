@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 @Injectable()
-export class ParserService {
+export class InstanceContainer {
   private instance: Instance;
   private dependencyGraph: DependencyGraph;
 

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { Course } from 'src/parser/interfaces';
-import { ParserService } from 'src/parser/parser.service';
+import { Course } from 'src/instance-container/interfaces';
+import { InstanceContainer } from 'src/instance-container/instance-container.service';
 import { Solution, SolutionVariable } from './interfaces';
 
 @Injectable()
@@ -11,7 +11,7 @@ export class HarmonySearchService {
   private readonly HMS = 10;
   private harmonyMemory: Solution[] = [];
 
-  constructor(private readonly parserService: ParserService) {}
+  constructor(private readonly instanceContainer: InstanceContainer) {}
 
   run(): void {
     this.createHarmonyMemory();
@@ -85,7 +85,7 @@ export class HarmonySearchService {
 
   private createRandomSolutionVector(): SolutionVariable[] {
     const solutionVector: SolutionVariable[] = [];
-    const instance = this.parserService.getInstance();
+    const instance = this.instanceContainer.getInstance();
 
     for (let i = 0; i < instance.Courses.length; i++) {
       const course = instance.Courses[i];
@@ -99,7 +99,7 @@ export class HarmonySearchService {
   private createVectorFromHarmonyMemory(): SolutionVariable[] {
     const solutionVector: SolutionVariable[] = [];
 
-    const instance = this.parserService.getInstance();
+    const instance = this.instanceContainer.getInstance();
 
     for (let i = 0; i < instance.Courses.length; i++) {
       const course = instance.Courses[i];
@@ -157,7 +157,7 @@ export class HarmonySearchService {
   }
 
   private createRandomSolutionVariable(course: Course): SolutionVariable {
-    const instance = this.parserService.getInstance();
+    const instance = this.instanceContainer.getInstance();
     const variable: SolutionVariable = {
       id: course.Course,
       period: Math.floor(Math.random() * instance.Periods),
@@ -187,7 +187,7 @@ export class HarmonySearchService {
 
   private calculateHardConstraints(solutionVector: SolutionVariable[]): number {
     let hardConstraints = 0;
-    const dependencyGraph = this.parserService.getDependencyGraph();
+    const dependencyGraph = this.instanceContainer.getDependencyGraph();
 
     for (let i = 0; i < solutionVector.length; i++) {
       const variable = solutionVector[i];
@@ -217,8 +217,8 @@ export class HarmonySearchService {
 
   private calculateSoftConstraints(solutionVector: SolutionVariable[]): number {
     let softConstraints = 0;
-    const dependencyGraph = this.parserService.getDependencyGraph();
-    const instance = this.parserService.getInstance();
+    const dependencyGraph = this.instanceContainer.getDependencyGraph();
+    const instance = this.instanceContainer.getInstance();
 
     for (let i = 0; i < solutionVector.length; i++) {
       const variable = solutionVector[i];

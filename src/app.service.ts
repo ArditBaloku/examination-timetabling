@@ -1,18 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { HarmonySearchService } from './harmony-search/harmony-search.service';
-import { ParserService } from './parser/parser.service';
+import { InstanceContainer } from './instance-container/instance-container.service';
 
 @Injectable()
 export class AppService {
   constructor(
-    private readonly parserService: ParserService,
+    private readonly instanceContainer: InstanceContainer,
     private readonly harmonySearchService: HarmonySearchService,
   ) {}
 
   main(): void {
     const [_, __, instanceName] = process.argv;
 
-    this.parserService.loadInstance(instanceName);
+    this.instanceContainer.loadInstance(instanceName);
     this.harmonySearchService.run();
   }
 }

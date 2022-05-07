@@ -1,4 +1,4 @@
-import { Room } from 'src/parser/interfaces';
+import { Room } from 'src/instance-container/interfaces';
 
 export interface SolutionVariable {
   id: string;
