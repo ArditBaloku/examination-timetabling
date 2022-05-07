@@ -9,7 +9,5 @@ export class AppService {
     const [_, __, instanceName] = process.argv;
 
     this.parserService.loadInstance(instanceName);
-    const instance = this.parserService.getInstance();
-    console.log(instance.Rooms);
   }
 }
