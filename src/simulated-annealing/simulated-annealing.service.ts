@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InstanceContainer } from 'src/instance-container/instance-container.service';
 import { Course, Room } from 'src/instance-container/interfaces';
-import { Solution, SolutionVariable } from 'src/interfaces';
+import { Solution, SolutionVariable } from 'src/app/interfaces';
 
 @Injectable()
 export class SimulatedAnnealingService {

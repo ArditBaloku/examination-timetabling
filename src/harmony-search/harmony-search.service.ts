@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Course } from 'src/instance-container/interfaces';
 import { InstanceContainer } from 'src/instance-container/instance-container.service';
-import { Solution, SolutionVariable } from '../interfaces';
+import { Solution, SolutionVariable } from '../app/interfaces';
 
 @Injectable()
 export class HarmonySearchService {
