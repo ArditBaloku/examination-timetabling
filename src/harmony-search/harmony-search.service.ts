@@ -17,13 +17,15 @@ export class HarmonySearchService {
   ) {}
 
   run(): void {
-    this.createHarmonyMemory();
+    this.harmonyMemory = this.createHarmonyMemory();
     let bestFitness = this.harmonyMemory[0].fitness;
     let worstFitness =
       this.harmonyMemory[this.harmonyMemory.length - 1].fitness;
 
     while (true) {
-      const solutionVector = this.createVectorFromHarmonyMemory();
+      const solutionVector = this.createVectorFromHarmonyMemory(
+        this.harmonyMemory,
+      );
       const fitness =
         this.metaheuristicsService.calculateFitness(solutionVector);
 
@@ -56,30 +58,32 @@ export class HarmonySearchService {
     }
   }
 
-  private createHarmonyMemory(): void {
+  createHarmonyMemory(): Solution[] {
+    const hm: Solution[] = [];
+
     for (let i = 0; i < this.HMS; i++) {
       const solutionVector =
         this.metaheuristicsService.createRandomSolutionVector();
       const fitness =
         this.metaheuristicsService.calculateFitness(solutionVector);
-      this.harmonyMemory.push({
+      hm.push({
         solutionVector,
         fitness,
       });
     }
 
-    this.harmonyMemory.sort((a, b) => a.fitness - b.fitness);
+    hm.sort((a, b) => a.fitness - b.fitness);
 
-    this.logHarmonyMemory();
+    this.logHarmonyMemory(hm);
+
+    return hm;
   }
 
-  private logHarmonyMemory(): void {
-    this.harmonyMemory.forEach((x) =>
-      this.metaheuristicsService.logSolutionVector(x),
-    );
+  private logHarmonyMemory(hm: Solution[]): void {
+    hm.forEach((x) => this.metaheuristicsService.logSolutionVector(x));
   }
 
-  private createVectorFromHarmonyMemory(): SolutionVariable[] {
+  createVectorFromHarmonyMemory(hm: Solution[]): SolutionVariable[] {
     const solutionVector: SolutionVariable[] = [];
 
     const instance = this.instanceContainer.getInstance();
@@ -93,10 +97,8 @@ export class HarmonySearchService {
       };
 
       if (Math.random() < this.HMCR) {
-        const randomIndex = Math.floor(
-          Math.random() * this.harmonyMemory.length,
-        );
-        const randomSolution = this.harmonyMemory[randomIndex];
+        const randomIndex = Math.floor(Math.random() * hm.length);
+        const randomSolution = hm[randomIndex];
         variable.period = randomSolution.solutionVector[i].period;
         variable.rooms = randomSolution.solutionVector[i].rooms;
 
