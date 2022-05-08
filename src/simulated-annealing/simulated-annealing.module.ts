@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { InstanceContainerModule } from 'src/instance-container/instance-container.module';
+import { MetaheuristicsModule } from 'src/metaheuristics/metaheuristics.module';
 import { SimulatedAnnealingService } from './simulated-annealing.service';
 
 @Module({
-  imports: [InstanceContainerModule],
+  imports: [MetaheuristicsModule],
   providers: [SimulatedAnnealingService],
   exports: [SimulatedAnnealingService],
 })

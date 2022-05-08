@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { Course } from 'src/instance-container/interfaces';
 import { InstanceContainer } from 'src/instance-container/instance-container.service';
 import { Solution, SolutionVariable } from '../app/interfaces';
+import { MetaheuristicsService } from 'src/metaheuristics/metaheuristics.service';
 
 @Injectable()
 export class HarmonySearchService {
@@ -11,7 +11,10 @@ export class HarmonySearchService {
   private readonly HMS = 10;
   private harmonyMemory: Solution[] = [];
 
-  constructor(private readonly instanceContainer: InstanceContainer) {}
+  constructor(
+    private readonly instanceContainer: InstanceContainer,
+    private readonly metaheuristicsService: MetaheuristicsService,
+  ) {}
 
   run(): void {
     this.createHarmonyMemory();
@@ -21,7 +24,8 @@ export class HarmonySearchService {
 
     while (true) {
       const solutionVector = this.createVectorFromHarmonyMemory();
-      const fitness = this.calculateFitness(solutionVector);
+      const fitness =
+        this.metaheuristicsService.calculateFitness(solutionVector);
 
       if (fitness < this.harmonyMemory[this.harmonyMemory.length - 1].fitness) {
         this.harmonyMemory[this.harmonyMemory.length - 1] = {
@@ -46,7 +50,7 @@ export class HarmonySearchService {
 
       if (this.harmonyMemory[0].fitness === 0) {
         console.log('Solution found');
-        this.logSolutionVector(this.harmonyMemory[0]);
+        this.metaheuristicsService.logSolutionVector(this.harmonyMemory[0]);
         break;
       }
     }
@@ -54,8 +58,10 @@ export class HarmonySearchService {
 
   private createHarmonyMemory(): void {
     for (let i = 0; i < this.HMS; i++) {
-      const solutionVector = this.createRandomSolutionVector();
-      const fitness = this.calculateFitness(solutionVector);
+      const solutionVector =
+        this.metaheuristicsService.createRandomSolutionVector();
+      const fitness =
+        this.metaheuristicsService.calculateFitness(solutionVector);
       this.harmonyMemory.push({
         solutionVector,
         fitness,
@@ -68,32 +74,9 @@ export class HarmonySearchService {
   }
 
   private logHarmonyMemory(): void {
-    this.harmonyMemory.forEach((x) => this.logSolutionVector(x));
-  }
-
-  private logSolutionVector(solution: Solution): void {
-    const loggableVector = solution.solutionVector.map((x) => {
-      return {
-        id: x.id,
-        period: x.period,
-        rooms: x.rooms.map((y) => y.Room),
-      };
-    });
-    console.table(loggableVector);
-    console.log('fitness', solution.fitness);
-  }
-
-  private createRandomSolutionVector(): SolutionVariable[] {
-    const solutionVector: SolutionVariable[] = [];
-    const instance = this.instanceContainer.getInstance();
-
-    for (let i = 0; i < instance.Courses.length; i++) {
-      const course = instance.Courses[i];
-      const variable = this.createRandomSolutionVariable(course);
-      solutionVector.push(variable);
-    }
-
-    return solutionVector;
+    this.harmonyMemory.forEach((x) =>
+      this.metaheuristicsService.logSolutionVector(x),
+    );
   }
 
   private createVectorFromHarmonyMemory(): SolutionVariable[] {
@@ -147,111 +130,13 @@ export class HarmonySearchService {
           }
         }
       } else {
-        variable = this.createRandomSolutionVariable(course);
+        variable =
+          this.metaheuristicsService.createRandomSolutionVariable(course);
       }
 
       solutionVector.push(variable);
     }
 
     return solutionVector;
-  }
-
-  private createRandomSolutionVariable(course: Course): SolutionVariable {
-    const instance = this.instanceContainer.getInstance();
-    const variable: SolutionVariable = {
-      id: course.Course,
-      period: Math.floor(Math.random() * instance.Periods),
-      rooms: [],
-    };
-
-    let possibleRooms = instance.Rooms.filter(
-      (x) => x.Type === course.RoomsRequested.Type,
-    );
-
-    for (let j = 0; j < course.RoomsRequested.Number; j++) {
-      const roomIndex = Math.floor(Math.random() * possibleRooms.length);
-      const room = possibleRooms[roomIndex];
-      possibleRooms = possibleRooms.filter((x) => x.Room !== room.Room);
-      variable.rooms.push(room);
-    }
-
-    return variable;
-  }
-
-  private calculateFitness(solutionVector: SolutionVariable[]): number {
-    return (
-      this.calculateHardConstraints(solutionVector) * 1000 +
-      this.calculateSoftConstraints(solutionVector)
-    );
-  }
-
-  private calculateHardConstraints(solutionVector: SolutionVariable[]): number {
-    let hardConstraints = 0;
-    const dependencyGraph = this.instanceContainer.getDependencyGraph();
-
-    for (let i = 0; i < solutionVector.length; i++) {
-      const variable = solutionVector[i];
-
-      const hardConstraintCourses = dependencyGraph[variable.id].hard;
-
-      hardConstraints += solutionVector.reduce((acc, curr) => {
-        if (!hardConstraintCourses.includes(curr.id)) return acc;
-
-        if (curr.period === variable.period) return acc + 1;
-
-        return acc;
-      }, 0);
-
-      hardConstraints += solutionVector.reduce((acc, curr) => {
-        if (curr.period === variable.period && curr.id !== variable.id)
-          for (const room1 of curr.rooms)
-            for (const room2 of variable.rooms)
-              if (room1.Room === room2.Room) acc += 1;
-
-        return acc;
-      }, 0);
-    }
-
-    return hardConstraints / 2;
-  }
-
-  private calculateSoftConstraints(solutionVector: SolutionVariable[]): number {
-    let softConstraints = 0;
-    const dependencyGraph = this.instanceContainer.getDependencyGraph();
-    const instance = this.instanceContainer.getInstance();
-
-    for (let i = 0; i < solutionVector.length; i++) {
-      const variable = solutionVector[i];
-
-      const softPrimaryCourses = dependencyGraph[variable.id].softPrimary;
-
-      softConstraints += solutionVector.reduce((acc, curr) => {
-        if (!softPrimaryCourses.includes(curr.id)) return acc;
-
-        if (
-          Math.abs(curr.period - variable.period) <
-          instance.PrimaryPrimaryDistance
-        )
-          return acc + 1;
-
-        return acc;
-      }, 0);
-
-      const softSecondaryCourses = dependencyGraph[variable.id].softSecondary;
-
-      softConstraints += solutionVector.reduce((acc, curr) => {
-        if (!softSecondaryCourses.includes(curr.id)) return acc;
-
-        if (
-          Math.abs(curr.period - variable.period) <
-          instance.PrimarySecondaryDistance
-        )
-          return acc + 1;
-
-        return acc;
-      }, 0);
-    }
-
-    return softConstraints / 2;
   }
 }
