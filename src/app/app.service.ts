@@ -12,10 +12,19 @@ export class AppService {
   ) {}
 
   main(): void {
-    const [_, __, instanceName] = process.argv;
+    const [_, __, algorithmName, instanceName] = process.argv;
 
     this.instanceContainer.loadInstance(instanceName);
-    this.simulatedAnnealingService.run();
-    // this.harmonySearchService.run();
+
+    switch (algorithmName) {
+      case 'hs':
+        this.harmonySearchService.run();
+        break;
+      case 'sa':
+        this.simulatedAnnealingService.run();
+        break;
+      default:
+        throw new Error(`Algorithm ${algorithmName} not found`);
+    }
   }
 }
