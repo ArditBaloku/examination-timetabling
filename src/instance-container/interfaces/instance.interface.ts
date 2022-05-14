@@ -3,6 +3,7 @@ import { Curriculum } from './curriculum.interface';
 import { Room } from './room.interface';
 
 export interface Instance {
+  Name: string;
   Courses: Course[];
   Curricula: Curriculum[];
   Periods: number;

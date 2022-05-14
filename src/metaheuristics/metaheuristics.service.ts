@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { Solution, SolutionVariable } from 'src/app/interfaces';
 import { Course, Room } from 'src/instance-container/interfaces';
 import { InstanceContainer } from 'src/instance-container/instance-container.service';
+import { SolutionOutput } from 'src/app/interfaces/solution-ouput.interface';
+import * as fs from 'fs';
 
 @Injectable()
 export class MetaheuristicsService {
@@ -17,6 +19,23 @@ export class MetaheuristicsService {
     });
     console.table(loggableVector);
     console.log('fitness', solution.fitness);
+  }
+
+  saveSolution(solution: Solution): void {
+    const solutionOutput: SolutionOutput = {
+      Assignments: solution.solutionVector.map((x) => ({
+        Course: x.id,
+        Period: x.period,
+        Room: x.rooms.map((x) => x.Room).join(', '),
+      })),
+      Cost: solution.fitness,
+    };
+
+    const output = JSON.stringify(solutionOutput);
+    const filename = `solutions/${
+      this.instanceContainer.getInstance().Name
+    }.output.json`;
+    fs.writeFileSync(filename, output);
   }
 
   createRandomSolutionVector(): SolutionVariable[] {

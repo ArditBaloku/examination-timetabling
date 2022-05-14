@@ -66,6 +66,10 @@ export class MemeticService {
               solutionVector: solution,
               fitness: fitness,
             });
+            this.metaheuristicsService.saveSolution({
+              solutionVector: solution,
+              fitness: fitness,
+            });
             return;
           }
 
@@ -83,6 +87,7 @@ export class MemeticService {
       if (this.harmonyMemory[0].fitness === 0) {
         console.log('Solution found');
         this.metaheuristicsService.logSolutionVector(this.harmonyMemory[0]);
+        this.metaheuristicsService.saveSolution(this.harmonyMemory[0]);
         return;
       }
 

@@ -1,0 +1,10 @@
+{
+  "Assignments": [
+    { "Course": "Databases", "Period": 12, "Room": "B, C" },
+    { "Course": "Algorithms", "Period": 0, "Room": "B" },
+    { "Course": "Programming", "Period": 14, "Room": "C, B" },
+    { "Course": "OpRes", "Period": 19, "Room": "H" },
+    { "Course": "Analytics", "Period": 6, "Room": "" }
+  ],
+  "Cost": 0
+}

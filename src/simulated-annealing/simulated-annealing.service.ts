@@ -40,6 +40,10 @@ export class SimulatedAnnealingService {
           solutionVector: solution,
           fitness: fitness,
         });
+        this.metaheuristicsService.saveSolution({
+          solutionVector: solution,
+          fitness: fitness,
+        });
         break;
       }
 

@@ -53,6 +53,7 @@ export class HarmonySearchService {
       if (this.harmonyMemory[0].fitness === 0) {
         console.log('Solution found');
         this.metaheuristicsService.logSolutionVector(this.harmonyMemory[0]);
+        this.metaheuristicsService.saveSolution(this.harmonyMemory[0]);
         break;
       }
     }

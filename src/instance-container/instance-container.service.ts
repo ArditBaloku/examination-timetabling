@@ -18,6 +18,7 @@ export class InstanceContainer {
 
   loadInstance(instanceName: string): void {
     this.instance = this.readInstance(instanceName);
+    this.instance.Name = instanceName;
     this.dependencyGraph = this.createDependencyGraph(this.instance);
   }
 
